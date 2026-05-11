@@ -2,7 +2,8 @@
 name = "hallucination-eval"
 version = "0.1.0"
 description = "Evaluation of hallucinations in VideoLLM"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
+
 
 dependencies = [
     "torch==2.3.1",

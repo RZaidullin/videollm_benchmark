@@ -3,7 +3,6 @@ import logging
 
 from src.pipelines.generate import run_generation
 
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--annotations", required=True,
@@ -24,6 +23,8 @@ def main():
         classifier_threshold=args.threshold,
         max_videos=args.max_videos,
     )
+
+
 
 
 if __name__ == "__main__":
