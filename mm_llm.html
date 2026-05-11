@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Мультимодальная архитектура</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #fff; font-family: Arial, sans-serif; padding: 20px; }
+
+  .main-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 10px;
+  }
+
+  /* Входные модальности */
+  .inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: flex-end;
+  }
+  .input-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: bold;
+  }
+  .input-item.image { color: #1a6fd4; }
+  .input-item.video { color: #cc6600; }
+  .input-item.audio { color: #2a9d2a; }
+
+  .arrow {
+    font-size: 22px;
+    color: #00aaff;
+    font-weight: bold;
+  }
+  .arrow-blue { color: #00aaff; font-size: 20px; font-weight: bold; }
+
+  /* Блоки */
+  .block {
+    border-radius: 12px;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .block-title {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  /* Энкодер модальностей */
+  .encoder-block {
+    background: #fde8b0;
+    border: 2px solid #e8a020;
+    width: 155px;
+    min-height: 320px;
+  }
+
+  .encoder-group {
+    background: #f4a440;
+    border-radius: 8px;
+    padding: 5px 6px;
+    margin-bottom: 5px;
+    width: 100%;
+    text-align: center;
+  }
+  .encoder-group-title {
+    font-size: 11px;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 3px;
+  }
+
+  .sub-item {
+    background: #fff;
+    border-radius: 5px;
+    padding: 2px 5px;
+    font-size: 10px;
+    margin: 2px 0;
+    text-align: center;
+  }
+  .sub-item.highlight { background: #ffd700; font-weight: bold; }
+  .sub-item.red { background: #e05555; color: #fff; font-weight: bold; }
+
+  /* Input Projector */
+  .projector-block {
+    background: #cce8ff;
+    border: 2px solid #5599dd;
+    width: 135px;
+    min-height: 260px;
+  }
+
+  .proj-item {
+    background: #fff;
+    border-radius: 5px;
+    padding: 3px 6px;
+    font-size: 10px;
+    margin: 2px 0;
+    text-align: center;
+    width: 100%;
+  }
+
+  /* LLM Backbone */
+  .llm-block {
+    background: #d6f0d6;
+    border: 2px solid #44aa44;
+    width: 175px;
+    min-height: 300px;
+  }
+
+  .llm-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    width: 100%;
+  }
+  .llm-item {
+    background: #88dd88;
+    border-radius: 5px;
+    padding: 4px 3px;
+    font-size: 10px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  /* Output Projector */
+  .out-projector-block {
+    background: #cce8ff;
+    border: 2px solid #5599dd;
+    width: 135px;
+    min-height: 180px;
+  }
+
+  /* Generator */
+  .generator-block {
+    background: #fde8b0;
+    border: 2px solid #e8a020;
+    width: 145px;
+    min-height: 280px;
+  }
+
+  .gen-group {
+    border-radius: 8px;
+    padding: 5px 6px;
+    margin-bottom: 5px;
+    width: 100%;
+    text-align: center;
+  }
+  .gen-group.image-g { background: #f4a440; }
+  .gen-group.video-g { background: #f4a440; }
+  .gen-group.audio-g { background: #f4a440; }
+
+  .gen-title {
+    font-size: 11px;
+    font-weight: bold;
+    color: #fff;
+  }
+  .gen-sub {
+    background: #c0501a;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 4px;
+    margin-top: 3px;
+  }
+
+  /* Подписи снизу */
+  .bottom-labels {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: bold;
+  }
+
+  .label-understand { color: #555; }
+  .label-generate { color: #555; }
+
+  /* Текст и иконка сверху */
+  .text-input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  .icon { font-size: 20px; }
+
+  .label-var {
+    font-size: 11px;
+    font-style: italic;
+    color: #333;
+    margin: 2px 0;
+  }
+
+  .dots { font-size: 16px; color: #888; text-align: center; }
+
+  .emoji { font-size: 14px; }
+
+  /* Стрелка с подписью */
+  .arrow-labeled {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 11px;
+    color: #333;
+  }
+
+  /* Выходные модальности */
+  .outputs {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .output-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: bold;
+  }
+
+  /* Скобки снизу */
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .brace-row {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin-top: 8px;
+  }
+
+  .brace-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .brace-line {
+    border-top: 2px solid #333;
+    border-left: 2px solid #333;
+    border-right: 2px solid #333;
+    height: 8px;
+    margin-bottom: 3px;
+  }
+
+  .brace-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  /* Текстовый блок сверху */
+  .top-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="main-container">
+
+    <!-- Входные данные -->
+    <div class="inputs">
+      <div class="input-item image">
+        <span class="icon">🖼️</span>
+        <span>Изображение</span>
+      </div>
+      <div class="input-item video">
+        <span class="icon">📹</span>
+        <span>Видео</span>
+      </div>
+      <div class="input-item audio">
+        <span class="icon">🔊</span>
+        <span>Аудио</span>
+      </div>
+      <div class="dots">...</div>
+    </div>
+
+    <!-- Стрелка Ix -->
+    <div class="arrow-labeled">
+      <span class="arrow-blue">→</span>
+      <span class="label-var">I<sub>X</sub></span>
+    </div>
+
+    <!-- Энкодер модальностей -->
+    <div style="display:flex; flex-direction:column; align-items:center;">
+      <div style="font-size:12px; font-weight:bold; margin-bottom:4px;">
+        Энкодер модальностей <i>ME<sub>X</sub></i>
+      </div>
+      <div class="block encoder-block">
+        <!-- Image/Video группа -->
+        <div class="encoder-group">
+          <div class="encoder-group-title">Изображение / Видео</div>
+          <div class="sub-item">NFNet-F6</div>
+          <div class="sub-item">ViT</div>
+          <div class="sub-item highlight">CLIP ViT</div>
+          <div class="sub-item">Eva-CLIP ViT</div>
+          <div class="dots" style="font-size:12px;">...</div>
+        </div>
+        <!-- Audio группа -->
+        <div class="encoder-group">
+          <div class="encoder-group-title">Аудио</div>
+          <div class="sub-item">C-Former</div>
+          <div class="sub-item">HuBERT</div>
+          <div class="sub-item">BEATs</div>
+          <div class="dots" style="font-size:12px;">...</div>
+        </div>
+        <!-- Unified ImageBind -->
+        <div style="width:100%; text-align:center; margin-top:4px;">
+          <div class="sub-item red">Unified ImageBind</div>
+        </div>
+        <div class="dots">...</div>
+        <div class="emoji">❄️</div>
+      </div>
+    </div>
+
+    <!-- Стрелка Fx -->
+    <div class="arrow-labeled">
+      <span class="arrow-blue">→</span>
+      <span class="label-var">F<sub>X</sub></span>
+    </div>
+
+    <!-- Блок: Текст + Input Projector -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+      <!-- Текст t сверху -->
+      <div class="top-text">
+        <span style="font-size:18px;">📄</span>
+        <span style="font-size:11px;">Текст <i>t</i></span>
+      </div>
+
+      <!-- Стрелка FT вправо (от текста к LLM) показана позже -->
+
+      <div style="font-size:12px; font-weight:bold; margin-bottom:4px; text-align:center;">
+        Входной проектор Θ<sub>X→T</sub>
+      </div>
+      <div class="block projector-block">
+        <div class="proj-item">Линейный проектор</div>
+        <div class="proj-item">MLP</div>
+        <div class="proj-item">Cross-attention</div>
+        <div class="proj-item">Q-Former</div>
+        <div class="proj-item">P-Former</div>
+        <div class="proj-item">MQ-Former</div>
+        <div class="dots">...</div>
+        <div class="emoji">🔥</div>
+      </div>
+    </div>
+
+    <!-- Стрелка Px -->
+    <div class="arrow-labeled">
+      <span class="arrow-blue">→</span>
+      <span class="label-var">P<sub>X</sub></span>
+    </div>
+
+    <!-- LLM Backbone -->
+    <div style="display:flex; flex-direction:column; align-items:center;">
+      <!-- FT стрелка сверху -->
+      <div style="display:flex; align-items:center; gap:4px; margin-bottom:6px; font-size:11px;">
+        <span style="font-size:18px;">📄</span>
+        <span class="arrow-blue" style="font-size:18px;">→</span>
+        <span class="label-var">F<sub>T</sub></span>
+      </div>
+
+      <div style="font-size:13px; font-weight:bold; margin-bottom:4px;">LLM Backbone</div>
+      <div class="block llm-block">
+        <div class="llm-grid">
+          <div class="llm-item">Flan-T5</div>
+          <div class="llm-item">ChatGLM</div>
+          <div class="llm-item">UL2</div>
+          <div class="llm-item">Qwen</div>
+          <div class="llm-item">Chinchilla</div>
+          <div class="llm-item">OPT</div>
+          <div class="llm-item">PaLM</div>
+          <div class="llm-item">LLaMA</div>
+          <div class="llm-item">LLaMA-2</div>
+          <div class="llm-item">Vicuna</div>
+        </div>
+        <div class="dots" style="margin-top:4px;">...</div>
+        <div class="emoji">❄️</div>
+      </div>
+    </div>
+
+    <!-- Стрелка Sx -->
+    <div class="arrow-labeled">
+      <span class="arrow-blue">→</span>
+      <span class="label-var">S<sub>X</sub></span>
+    </div>
+
+    <!-- Output Projector -->
+    <div style="display:flex; flex-direction:column; align-items:center;">
+      <!-- Иконка документа сверху -->
+      <div style="font-size:20px; margin-bottom:6px;">📄</div>
+      <div style="font-size:12px; font-weight:bold; margin-bottom:4px; text-align:center;">
+        Выходной проектор Θ<sub>T→X</sub>
+      </div>
+      <div class="block out-projector-block">
+        <div class="proj-item">Tiny Transformer</div>
+        <div class="proj-item">MLP</div>
+        <div class="dots">...</div>
+        <div class="emoji">🔥</div>
+      </div>
+    </div>
+
+    <!-- Стрелка Hx -->
+    <div class="arrow-labeled">
+      <span class="arrow-blue">→</span>
+      <span class="label-var">H<sub>X</sub></span>
+    </div>
+
+    <!-- Генератор модальностей -->
+    <div style="display:flex; flex-direction:column; align-items:center;">
+      <div style="font-size:12px; font-weight:bold; margin-bottom:4px;">
+        Генератор модальностей <i>MG<sub>X</sub></i>
+      </div>
+      <div class="block generator-block">
+        <!-- Изображение -->
+        <div class="gen-group image-g">
+          <div class="gen-title">Изображение</div>
+          <div class="gen-sub">Stable Diffusion</div>
+        </div>
+        <!-- Видео -->
+        <div class="gen-group video-g">
+          <div class="gen-title">Видео</div>
+          <div class="gen-sub">Zeroscope</div>
+        </div>
+        <!-- Аудио -->
+        <div class="gen-group audio-g">
+          <div class="gen-title">Аудио</div>
+          <div class="gen-sub">AudioLDM</div>
+        </div>
+        <div class="dots">...</div>
+        <div class="emoji">❄️</div>
+      </div>
+    </div>
+
+    <!-- Выходные данные -->
+    <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+      <span class="arrow-blue" style="font-size:22px;">→</span>
+    </div>
+
+    <div class="outputs">
+      <div class="output-item" style="color:#1a6fd4;">
+        <span class="icon">🖼️</span>
+      </div>
+      <div class="output-item" style="color:#cc6600;">
+        <span class="icon">📹</span>
+      </div>
+      <div class="output-item" style="color:#2a9d2a;">
+        <span class="icon">🔊</span>
+      </div>
+      <div class="dots">...</div>
+    </div>
+
+  </div>
+
+  <!-- Подписи снизу со скобками -->
+  <div style="display:flex; justify-content:space-around; margin-top:10px; padding: 0 60px;">
+    <div style="display:flex; flex-direction:column; align-items:center; width:48%;">
+      <div style="width:90%; border-top: 2px solid #333; border-left: 2px solid #333; border-right: 2px solid #333; height: 8px; margin-bottom:4px;"></div>
+      <span style="font-size:13px; font-weight:bold; color:#333;">Мультимодальное понимание</span>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:center; width:35%;">
+      <div style="width:90%; border-top: 2px solid #333; border-left: 2px solid #333; border-right: 2px solid #333; height: 8px; margin-bottom:4px;"></div>
+      <span style="font-size:13px; font-weight:bold; color:#333;">Мультимодальная генерация</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
